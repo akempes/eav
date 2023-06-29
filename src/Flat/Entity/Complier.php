@@ -236,7 +236,7 @@ class Complier
      */
     protected function replaceClassName(&$stub)
     {
-        $className = ucwords(camel_case($this->entity->entityTableName().'_flat'));
+        $className = ucwords(Str::camel($this->entity->entityTableName().'_flat'));
         $stub = str_replace('{{class}}', $className, $stub);
         return $this;
     }
