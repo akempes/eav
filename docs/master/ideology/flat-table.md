@@ -20,6 +20,14 @@ $ php artisan eav:compile:updater [entity_code] -C 100
 By default it will insert 100 records in a single insert. You can increase the value using `-C` option.
 
 
+**To updated specific row(s) in table.**
+
+```bash
+$ php artisan eav:compile:updater [entity_code] -I 1,3
+```
+Only the Entity row IDs 1 & 3 will be updated. This especially useful for large datasets.
+
+
 **To Activate the Flat table for the entity**
 
 ```bash

@@ -15,7 +15,9 @@ class FlatEntityUpdaterCommand extends Command
      * @var string
      */
     protected $signature = 'eav:compile:updater {entity : The name of the entity.}
-        {--C|count=100 : No of items that can be insert in a single query.}';
+        {--C|count=100 : No of items that can be insert in a single query.}
+        {--I|ids= : Entity row IDs, comma separated, to insert/update.}
+        ';
 
     /**
      * The console command description.

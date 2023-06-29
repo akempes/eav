@@ -43,6 +43,10 @@ class Updater
      */
     public function insert()
     {
+        $count = (int) $this->console->option('count');
+        $hasIds = !empty($this->console->option('ids'));
+        $ids = explode(',', $this->console->option('ids'));
+
         $entity = app($this->entity->entity_class);
 
         $flatEntity = app($this->entity->entity_class);
@@ -51,7 +55,11 @@ class Updater
         
         $flatEntity->setUseFlat(true);
 
-        $flatEntity->truncate();
+        if ($hasIds) {
+            $flatEntity->whereIn($entity->getKeyName(), $ids)->delete();
+        } else {
+            $flatEntity->truncate();
+        }
 
         $flatEntity->setUseFlat(false);
 
@@ -61,15 +69,24 @@ class Updater
 
         $this->console->info("\t Updating `{$this->entity->entity_table}` flat table.");
 
-        $bar = $this->console->getOutput()->createProgressBar(\DB::table($this->entity->entity_table)->count());
+        $bar = $this->console->getOutput()->createProgressBar(
+            \DB::table($this->entity->entity_table)
+            ->when($hasIds, function ($q) use ($entity, $ids)
+            {
+                $q->whereIn($entity->getKeyName(), $ids);
+            })
+            ->count()
+        );
 
         $bar->setFormat("\t %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s% %memory:6s%");
-
-        $count = (int) $this->console->option('count');
 
         \DB::table($this->entity->entity_table)
             ->select($entity->getKeyName())
             ->orderBy($entity->getKeyName(), 'asc')
+            ->when($hasIds, function ($q) use ($entity, $ids)
+            {
+                $q->whereIn($entity->getKeyName(), $ids);
+            })
             ->chunk($count, function ($chunk) use ($entity, $flatEntity, $attributes, &$bar) {
                 $ids = $chunk->pluck($entity->getKeyName())->toArray();
                 
